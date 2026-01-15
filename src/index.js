@@ -9,8 +9,7 @@ connectDB();
 const app = express();
 
 app.use(cors({
-    origin: "https://YOUR-FRONTEND.vercel.app",
-    credentials: true
+    origin: "*",
 }));
 
 app.use(express.json());
