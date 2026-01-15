@@ -14,9 +14,13 @@ app.use(cors({
 
 app.use(express.json());
 
-// Request logger
+// Request logger with timing
 app.use((req, res, next) => {
-    console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
+    const start = Date.now();
+    res.on('finish', () => {
+        const duration = Date.now() - start;
+        console.log(`${new Date().toISOString()} - ${req.method} ${req.url} - ${res.statusCode} (${duration}ms)`);
+    });
     next();
 });
 
@@ -27,6 +31,10 @@ app.use("/api/telemetry", require("./routes/telemetry.routes"));
 
 app.get("/", (req, res) => {
     res.send("API is running...");
+});
+
+app.get("/api/health", (req, res) => {
+    res.json({ status: "ok", timestamp: new Date().toISOString() });
 });
 
 // Error Handling Middleware
