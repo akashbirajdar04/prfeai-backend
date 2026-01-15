@@ -16,13 +16,17 @@ const registerUser = asyncHandler(async (req, res) => {
     const { name, email, password } = req.body;
 
     if (!name || !email || !password) {
+        console.log(`Registration failed: Missing fields for ${email}`);
         res.status(400);
         throw new Error('Please add all fields');
     }
 
+    console.log(`Registration attempt for: ${email}`);
+
     const userExists = await User.findOne({ email });
 
     if (userExists) {
+        console.log(`Registration failed: User already exists - ${email}`);
         res.status(400);
         throw new Error('User already exists');
     }
@@ -56,10 +60,15 @@ const registerUser = asyncHandler(async (req, res) => {
 // @access  Public
 const loginUser = asyncHandler(async (req, res) => {
     const { email, password } = req.body;
+    console.log(`Login attempt for: ${email}`);
 
     const user = await User.findOne({ email });
+    if (!user) {
+        console.log(`Login failed: User not found - ${email}`);
+    }
 
     if (user && (await bcrypt.compare(password, user.password))) {
+        console.log(`Login successful: ${email}`);
         res.json({
             user: {
                 _id: user.id,
@@ -69,6 +78,7 @@ const loginUser = asyncHandler(async (req, res) => {
             token: generateToken(user.id),
         });
     } else {
+        console.log(`Login failed: Invalid password for ${email}`);
         res.status(401);
         throw new Error('Invalid credentials');
     }
