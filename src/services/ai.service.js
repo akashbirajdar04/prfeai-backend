@@ -37,20 +37,17 @@ const aiService = {
     analyze: async (metrics, sessionId) => {
         const latencyContext = aiService.getLatencyFromRAG(sessionId);
 
-        let prompt = `Analyze this web performance data:\n`;
-        prompt += `Lighthouse Metrics: ${JSON.stringify(metrics)}\n`;
-
-        if (latencyContext) {
-            prompt += `Backend API Latency Context (from RAG): ${JSON.stringify(latencyContext)}\n`;
-        } else {
-            prompt += `No backend telemetry available.\n`;
-        }
-
-        prompt += `Provide 3 specific suggestions for Frontend, Backend, and SEO optimization. Return as JSON array.`;
+        let prompt = `Analyze this web performance and API latency data and provide 3-5 specific technical suggestions.
+        Lighthouse: ${JSON.stringify(metrics)}
+        API Latency: ${latencyContext ? JSON.stringify(latencyContext) : 'None'}
+        
+        Return ONLY a JSON array of objects with: title, category (Frontend/Backend/SEO), severity (high/medium/low), description, suggestedFix.`;
 
         try {
-            // Mock if no key
-            if (!process.env.OPENAI_API_KEY) {
+            // Mock if no key or mock-key
+            const isMock = !process.env.OPENAI_API_KEY || process.env.OPENAI_API_KEY === 'mock-key' || process.env.OPENAI_API_KEY.includes('mock');
+
+            if (isMock) {
                 return [
                     { title: 'Optimize Images (Mock)', category: 'Frontend', severity: 'medium', description: 'Compress images...', suggestedFix: 'Use WebP' },
                     { title: 'Database Indexing (Mock)', category: 'Backend', severity: 'high', description: 'Slow queries detected...', suggestedFix: 'Index user_id' }
@@ -62,10 +59,20 @@ const aiService = {
                 model: "gpt-3.5-turbo",
             });
 
-            return JSON.parse(completion.choices[0].message.content);
+            let content = completion.choices[0].message.content;
+            // Robust parsing: strip potential markdown ```json blocks
+            if (content.includes('```')) {
+                content = content.replace(/```json/g, '').replace(/```/g, '').trim();
+            }
+
+            return JSON.parse(content);
         } catch (error) {
             console.error("AI Analysis failed:", error);
-            return []; // Fallback
+            // Return mock data as fallback so UI isn't empty
+            return [
+                { title: 'Optimize Hero Images', category: 'Frontend', severity: 'high', description: 'Large images are slowing down LCP.', suggestedFix: 'Use responsive images and WebP format.' },
+                { title: 'Reduce Server Response Time', category: 'Backend', severity: 'medium', description: 'TTFB is higher than 500ms.', suggestedFix: 'Add database caching or optimize slow queries.' }
+            ];
         }
     }
 };

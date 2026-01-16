@@ -60,7 +60,8 @@ const receiveTelemetry = asyncHandler(async (req, res) => {
 
         // 4. Update Session
         await Session.findByIdAndUpdate(sessionId, {
-            'artifacts.endpointsUrl': url
+            'artifacts.endpointsUrl': url,
+            'metrics.api': aggregated // Save to metrics.api so frontend can see it
         });
 
         res.status(200).json({ success: true, url });

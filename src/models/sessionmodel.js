@@ -18,7 +18,7 @@ const AnalysisSessionSchema = new mongoose.Schema(
     // Analysis lifecycle
     status: {
       type: String,
-      enum: ["pending", "running", "completed", "failed"],
+      enum: ["pending", "running", "completed", "failed", "waiting_for_telemetry"],
       default: "pending"
     },
 
@@ -36,7 +36,10 @@ const AnalysisSessionSchema = new mongoose.Schema(
         lcp: String,
         cls: String,
         inp: String,
-        ttfb: String
+        ttfb: String,
+        fcp: String,
+        si: String,
+        tbt: String
       },
       seo: {
         score: Number,

@@ -36,43 +36,50 @@ const startAnalysis = asyncHandler(async (req, res) => {
    // BACKGROUND PROCESS
    (async () => {
       try {
-         console.log(`[Job] Starting analysis for ${session._id} - URL: ${url}`);
-
-         // 1. Run Lighthouse
-         console.log(`[Job] Calling runLighthouse...`);
+         console.log(`[Job] 1. Calling runLighthouse...`);
          const { rawReport, metrics } = await runLighthouse(url);
-         console.log(`[Job] Lighthouse done. Uploading report...`);
+         console.log(`[Job] Lighthouse Success. Performance: ${metrics.performanceScore}`);
 
-         const lhUrl = await uploadJSON(rawReport, 'lighthouse_reports');
-         console.log(`[Job] Upload done: ${lhUrl}`);
+         console.log(`[Job] 2. Uploading report to Cloudinary...`);
+         let lhUrl;
+         try {
+            lhUrl = await uploadJSON(rawReport, 'lighthouse_reports');
+            console.log(`[Job] Cloudinary Success: ${lhUrl}`);
+         } catch (uErr) {
+            console.error(`[Job] Cloudinary Upload Error:`, uErr.message);
+            throw new Error(`Upload Failed: ${uErr.message}`);
+         }
 
-         // 2. Wait for Telemetry & AI
-         // Stop here. We wait for user to install SDK and send telemetry.
-         // Or user manually triggers AI generation.
+         console.log(`[Job] 3. Updating database for session ${session._id}...`);
+         try {
+            await Session.findByIdAndUpdate(session._id, {
+               status: 'waiting_for_telemetry',
+               'artifacts.lighthouseReportUrl': lhUrl,
+               'metrics.performance': {
+                  score: metrics.performanceScore,
+                  lcp: metrics.lcp,
+                  cls: metrics.cls,
+                  inp: metrics.inp,
+                  ttfb: metrics.ttfb,
+                  fcp: metrics.fcp,
+                  si: metrics.si,
+                  tbt: metrics.tbt
+               },
+               'metrics.seo': {
+                  score: metrics.seoScore,
+                  issues: []
+               }
+            });
+            console.log(`[Job] Database Update Success for ${session._id}`);
+         } catch (dbErr) {
+            console.error(`[Job] Database Update Error:`, dbErr.message);
+            throw new Error(`DB Update Failed: ${dbErr.message}`);
+         }
 
-         console.log(`[Job] Updating session ${session._id} to waiting_for_telemetry`);
-         await Session.findByIdAndUpdate(session._id, {
-            status: 'waiting_for_telemetry', // New status
-            'artifacts.lighthouseReportUrl': lhUrl,
-            // Save partial metrics (Lighthouse only)
-            'metrics.performance': {
-               score: metrics.performanceScore,
-               lcp: metrics.lcp,
-               cls: metrics.cls,
-               inp: metrics.inp,
-               ttfb: metrics.ttfb
-            },
-            'metrics.seo': {
-               score: metrics.seoScore,
-               issues: []
-            }
-         });
-         console.log(`[Job] Lighthouse completed & saved for ${session._id}`);
-
-      } catch (error) {
-         console.error(`[Job] FATAL ERROR for ${session._id}:`, error);
-         console.error(`[Job] Stack Trace:`, error.stack);
+      } catch (stepError) {
+         console.error(`[Job] STEP FAILURE for ${session._id}:`, stepError.message);
          await Session.findByIdAndUpdate(session._id, { status: 'failed' });
+         throw stepError; // Re-throw for final catch
       }
    })();
 });
@@ -128,7 +135,11 @@ const generateAI = asyncHandler(async (req, res) => {
             seoScore: session.metrics?.seo?.score || 0,
             lcp: session.metrics?.performance?.lcp,
             cls: session.metrics?.performance?.cls,
-            ttfb: session.metrics?.performance?.ttfb
+            inp: session.metrics?.performance?.inp,
+            ttfb: session.metrics?.performance?.ttfb,
+            fcp: session.metrics?.performance?.fcp,
+            si: session.metrics?.performance?.si,
+            tbt: session.metrics?.performance?.tbt
          };
 
          const aiRecommendations = await aiService.analyze(metrics, session._id.toString());

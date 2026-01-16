@@ -16,12 +16,12 @@ const registerUser = asyncHandler(async (req, res) => {
     const { name, email, password } = req.body;
 
     if (!name || !email || !password) {
-        console.log(`Registration failed: Missing fields for ${email}`);
+        console.log(`[Auth] Registration failed: Missing fields for ${email}`);
         res.status(400);
         throw new Error('Please add all fields');
     }
 
-    console.log(`Registration attempt for: ${email}`);
+    console.log(`[Auth] Registration attempt for: ${email}`);
 
     const userExists = await User.findOne({ email });
 
@@ -68,7 +68,7 @@ const loginUser = asyncHandler(async (req, res) => {
     }
 
     if (user && (await bcrypt.compare(password, user.password))) {
-        console.log(`Login successful: ${email}`);
+        console.log(`[Auth] Login successful: ${email}`);
         res.json({
             user: {
                 _id: user.id,
@@ -78,7 +78,7 @@ const loginUser = asyncHandler(async (req, res) => {
             token: generateToken(user.id),
         });
     } else {
-        console.log(`Login failed: Invalid password for ${email}`);
+        console.log(`[Auth] Login failed: Invalid password or user not found for ${email}`);
         res.status(401);
         throw new Error('Invalid credentials');
     }
