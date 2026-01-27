@@ -10,7 +10,10 @@ if (!fs.existsSync(RAG_DOCS_PATH)) {
     fs.mkdirSync(RAG_DOCS_PATH, { recursive: true });
 }
 
+const ragService = require('../../../rag/services/rag.service');
+
 const aiService = {
+
     /**
      * Save latency data to RAG document store
      */
@@ -18,63 +21,99 @@ const aiService = {
         const filePath = path.join(RAG_DOCS_PATH, `latency_${sessionId}.json`);
         fs.writeFileSync(filePath, JSON.stringify(latencyData, null, 2));
         console.log(`[RAG] Stored latency context for session ${sessionId}`);
+        return filePath;
     },
 
     /**
-     * Read latency data from RAG store
+     * Generate optimization analysis using RAG system
+     * @param {Object} metrics Current session metrics
+     * @param {string} sessionId Current session ID
+     * @param {Object} previousMetrics Optional metrics from a previous run for comparison
      */
-    getLatencyFromRAG: (sessionId) => {
-        const filePath = path.join(RAG_DOCS_PATH, `latency_${sessionId}.json`);
-        if (fs.existsSync(filePath)) {
-            return JSON.parse(fs.readFileSync(filePath, 'utf8'));
-        }
-        return null;
-    },
-
-    /**
-     * Generate optimization analysis
-     */
-    analyze: async (metrics, sessionId) => {
-        const latencyContext = aiService.getLatencyFromRAG(sessionId);
-
-        let prompt = `Analyze this web performance and API latency data and provide 3-5 specific technical suggestions.
-        Lighthouse: ${JSON.stringify(metrics)}
-        API Latency: ${latencyContext ? JSON.stringify(latencyContext) : 'None'}
-        
-        Return ONLY a JSON array of objects with: title, category (Frontend/Backend/SEO), severity (high/medium/low), description, suggestedFix.`;
-
+    analyze: async (metrics, sessionId, previousMetrics = null) => {
         try {
-            // Mock if no key or mock-key
-            const isMock = !process.env.OPENAI_API_KEY || process.env.OPENAI_API_KEY === 'mock-key' || process.env.OPENAI_API_KEY.includes('mock');
+            console.log(`[AI-PERF] Generating Strict One-Liner RAG analysis for session ${sessionId}`);
 
-            if (isMock) {
-                return [
-                    { title: 'Optimize Images (Mock)', category: 'Frontend', severity: 'medium', description: 'Compress images...', suggestedFix: 'Use WebP' },
-                    { title: 'Database Indexing (Mock)', category: 'Backend', severity: 'high', description: 'Slow queries detected...', suggestedFix: 'Index user_id' }
-                ];
+            let prompt = "Perform a full system performance analysis. Output sections exactly: Backend:, Frontend:, and Technical:. Reference API metrics and frontend vitals.";
+
+            if (previousMetrics) {
+                prompt += `\n\nCRITICAL: Compare these current metrics with the previous run:
+                Current LCP: ${metrics.lcp}, Previous: ${previousMetrics.lcp}
+                Current Score: ${metrics.performanceScore}, Previous: ${previousMetrics.performanceScore}
+                Mention if performance is improving or degrading in one of the bullets.`;
             }
 
-            const completion = await openai.chat.completions.create({
-                messages: [{ role: "user", content: prompt }],
-                model: "gpt-3.5-turbo",
-            });
+            const fullReport = await ragService.ask(sessionId, prompt);
 
-            let content = completion.choices[0].message.content;
-            // Robust parsing: strip potential markdown ```json blocks
-            if (content.includes('```')) {
-                content = content.replace(/```json/g, '').replace(/```/g, '').trim();
-            }
+            // Parsing sections from the LLM output
+            const parseSection = (sectionName) => {
+                const regex = new RegExp(`${sectionName}:([\\s\\S]*?)(?=(Backend:|Frontend:|Technical:|$))`, 'i');
+                const match = fullReport.match(regex);
+                return match ? match[1].trim() : "No specific insights found.";
+            };
 
-            return JSON.parse(content);
-        } catch (error) {
-            console.error("AI Analysis failed:", error);
-            // Return mock data as fallback so UI isn't empty
+            const backendInsights = parseSection("Backend");
+            const frontendInsights = parseSection("Frontend");
+            const technicalInsights = parseSection("Technical");
+
             return [
-                { title: 'Optimize Hero Images', category: 'Frontend', severity: 'high', description: 'Large images are slowing down LCP.', suggestedFix: 'Use responsive images and WebP format.' },
-                { title: 'Reduce Server Response Time', category: 'Backend', severity: 'medium', description: 'TTFB is higher than 500ms.', suggestedFix: 'Add database caching or optimize slow queries.' }
+                {
+                    title: 'Backend Performance Insights',
+                    category: 'Backend',
+                    severity: 'high',
+                    description: backendInsights,
+                    suggestedFix: 'Implement the identified backend optimizations.'
+                },
+                {
+                    title: 'Frontend Vitals Analysis',
+                    category: 'Frontend',
+                    severity: 'medium',
+                    description: frontendInsights,
+                    suggestedFix: 'Optimize client-side assets and components.'
+                },
+                {
+                    title: 'Technical Infrastructure Steps',
+                    category: 'Technical',
+                    severity: 'high',
+                    description: technicalInsights,
+                    suggestedFix: 'Apply the listed infrastructure and observability fixes.'
+                }
             ];
+        } catch (error) {
+            console.error("AI RAG Analysis failed:", error);
+            return [
+                { title: 'Performance Analysis Unavailable', category: 'General', severity: 'low', description: 'Could not generate grounded insights at this time.', suggestedFix: 'Retry analysis after more data is collected.' }
+            ];
+        }
+    },
+
+    /**
+     * Compare two sessions side-by-side
+     */
+    compare: async (sessionA, sessionB) => {
+        try {
+            console.log(`[AI-PERF] Comparing sessions ${sessionA._id} and ${sessionB._id}`);
+
+            const prompt = `Perform a side-by-side A/B comparison between two performance runs.
+            Run A (Target: ${sessionA.targetUrl}): Score ${sessionA.metrics.performance.score}, LCP ${sessionA.metrics.performance.lcp}
+            Run B (Target: ${sessionB.targetUrl}): Score ${sessionB.metrics.performance.score}, LCP ${sessionB.metrics.performance.lcp}
+            
+            Identify 3 key differences and crown a winner. 
+            Format: One-liner bullets ONLY. Use arrow notation.`;
+
+            // We use Session A's namespace for context but the prompt includes data for both
+            const comparisonReport = await ragService.ask(sessionA._id.toString(), prompt);
+
+            return {
+                comparison: comparisonReport,
+                winner: sessionA.metrics.performance.score > sessionB.metrics.performance.score ? 'Run A' : 'Run B'
+            };
+        } catch (error) {
+            console.error("Comparison failed:", error);
+            throw error;
         }
     }
 };
+
 
 module.exports = aiService;

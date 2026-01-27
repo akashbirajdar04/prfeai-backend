@@ -2,6 +2,7 @@ const express = require("express");
 const dotenv = require("dotenv");
 const cors = require("cors");
 const connectDB = require("./config/db");
+const protobufParser = require("./middleware/protobuf-parser");
 
 dotenv.config();
 connectDB();
@@ -10,12 +11,17 @@ const app = express();
 
 app.use(cors({
     origin: "*",
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization", "x-session-id"]
 }));
 
+// Parse Protobuf data before JSON parser
+app.use(protobufParser);
 app.use(express.json());
 
 // Request logger with timing
 app.use((req, res, next) => {
+    console.log(`[INCOMING] ${req.method} ${req.url}`); // Log immediately on receipt
     const start = Date.now();
     res.on('finish', () => {
         const duration = Date.now() - start;
@@ -23,6 +29,8 @@ app.use((req, res, next) => {
     });
     next();
 });
+
+const { errorHandler, notFound } = require("./middleware/errorMiddleware");
 
 // Routes
 app.use("/api/auth", require("./routes/auth.routes"));
@@ -37,15 +45,9 @@ app.get("/api/health", (req, res) => {
     res.json({ status: "ok", timestamp: new Date().toISOString() });
 });
 
-// Error Handling Middleware
-app.use((err, req, res, next) => {
-    const statusCode = res.statusCode === 200 ? 500 : res.statusCode;
-    res.status(statusCode);
-    res.json({
-        message: err.message,
-        stack: process.env.NODE_ENV === 'production' ? null : err.stack,
-    });
-});
+// Professional Error Handling Mix
+app.use(notFound);
+app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
 

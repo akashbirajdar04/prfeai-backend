@@ -47,6 +47,10 @@ const AnalysisSessionSchema = new mongoose.Schema(
       },
       api: Array, // Aggregated endpoint data
       ai: Array   // Recommendations
+    },
+    error: {
+      message: String,
+      stack: String
     }
   },
   { timestamps: true }

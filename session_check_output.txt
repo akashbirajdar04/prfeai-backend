@@ -1,0 +1,32 @@
+[dotenv@17.2.3] injecting env (7) from .env -- tip: ⚙️  enable debug logging with { debug: true }
+Connected to MongoDB
+
+Found 5 recent sessions:
+
+ID: 696d0e0a092dbb25c9160744
+URL: https:// http://localhost:5173
+Status: failed
+Created: Sun Jan 18 2026 22:14:58 GMT+0530 (India Standard Time)
+Error detail: Check backend logs for [Job] failure
+-------------------
+ID: 696d0de6092dbb25c9160732
+URL: https:// http://localhost:5173
+Status: failed
+Created: Sun Jan 18 2026 22:14:22 GMT+0530 (India Standard Time)
+Error detail: Check backend logs for [Job] failure
+-------------------
+ID: 696cf0885d48b595bf22ce5b
+URL: http://localhost:5174
+Status: waiting_for_telemetry
+Created: Sun Jan 18 2026 20:09:04 GMT+0530 (India Standard Time)
+-------------------
+ID: 696cdfcba5cd0adb37942339
+URL: http://localhost:5174
+Status: completed
+Created: Sun Jan 18 2026 18:57:39 GMT+0530 (India Standard Time)
+-------------------
+ID: 696cd685074d200e542f6610
+URL: https://managment-frontend-nu.vercel.app
+Status: waiting_for_telemetry
+Created: Sun Jan 18 2026 18:18:05 GMT+0530 (India Standard Time)
+-------------------
