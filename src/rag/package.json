@@ -1,0 +1,22 @@
+{
+  "name": "rag",
+  "version": "1.0.0",
+  "description": "",
+  "license": "ISC",
+  "author": "",
+  "type": "commonjs",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "@huggingface/inference": "^4.13.10",
+    "@pinecone-database/pinecone": "^6.1.4",
+    "dotenv": "^17.2.3",
+    "groq-sdk": "^0.37.0",
+    "openai": "^6.16.0"
+  }
+}

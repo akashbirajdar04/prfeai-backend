@@ -1,7 +1,7 @@
 const asyncHandler = require('express-async-handler');
 const Session = require('../models/sessionmodel');
 const aiService = require('../services/ai.service');
-const ragService = require('../../../rag/services/rag.service');
+const ragService = require('../rag/services/rag.service');
 const { uploadJSON } = require('../services/cloudinary.service');
 const webhookService = require('../services/webhook.service');
 const analysisService = require('../services/analysis.service');

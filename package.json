@@ -11,15 +11,18 @@
     "dev": "nodemon src/index.js"
   },
   "dependencies": {
+    "@huggingface/inference": "^4.13.10",
     "@opentelemetry/api": "^1.9.0",
     "@opentelemetry/auto-instrumentations-node": "0.47.1",
     "@opentelemetry/exporter-trace-otlp-http": "^0.209.0",
     "@opentelemetry/sdk-node": "^0.209.0",
+    "@pinecone-database/pinecone": "^6.1.4",
     "axios": "^1.13.2",
     "bcryptjs": "^3.0.3",
     "chrome-launcher": "^1.2.1",
     "cloudinary": "^2.8.0",
     "cors": "^2.8.5",
+    "groq-sdk": "^0.37.0",
     "dotenv": "^17.2.3",
     "express": "^5.2.1",
     "express-async-handler": "^1.2.0",

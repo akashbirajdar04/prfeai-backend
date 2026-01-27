@@ -1,0 +1,16 @@
+[
+  {
+    "endpoint": "/socket.io/",
+    "method": "GET",
+    "avgLatency": 44,
+    "p95": 114,
+    "isSlow": false
+  },
+  {
+    "endpoint": "/socket.io/",
+    "method": "POST",
+    "avgLatency": 3,
+    "p95": 5,
+    "isSlow": false
+  }
+]

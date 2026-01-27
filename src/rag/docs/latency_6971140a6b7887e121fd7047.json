@@ -1,0 +1,12 @@
+[
+  {
+    "endpoint": "/Profile/messages/unread-count",
+    "method": "GET",
+    "avgLatency": 1030,
+    "bestLatency": 1030,
+    "p95": 1030,
+    "hitCount": 1,
+    "successRate": 100,
+    "isSlow": true
+  }
+]

@@ -1,0 +1,16 @@
+[
+  {
+    "endpoint": "/api/users",
+    "method": "GET",
+    "avgLatency": 250,
+    "p95": 250,
+    "isSlow": true
+  },
+  {
+    "endpoint": "/api/login",
+    "method": "POST",
+    "avgLatency": 500,
+    "p95": 500,
+    "isSlow": true
+  }
+]

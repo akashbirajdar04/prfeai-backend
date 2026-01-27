@@ -1,0 +1,9 @@
+[
+  {
+    "endpoint": "/test-manual",
+    "method": "GET",
+    "avgLatency": 100,
+    "p95": 100,
+    "isSlow": false
+  }
+]

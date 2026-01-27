@@ -1,0 +1,312 @@
+[
+  {
+    "endpoint": "/",
+    "method": "GET",
+    "avgLatency": 856,
+    "bestLatency": 856,
+    "p95": 856,
+    "hitCount": 1,
+    "successRate": 100,
+    "isSlow": true
+  },
+  {
+    "endpoint": "/mess/menu/week",
+    "method": "GET",
+    "avgLatency": 69,
+    "bestLatency": 66,
+    "p95": 71,
+    "hitCount": 3,
+    "successRate": 100,
+    "isSlow": false
+  },
+  {
+    "endpoint": "/student/profile",
+    "method": "OPTIONS",
+    "avgLatency": 5,
+    "bestLatency": 1,
+    "p95": 12,
+    "hitCount": 3,
+    "successRate": 100,
+    "isSlow": false
+  },
+  {
+    "endpoint": "/student/profile",
+    "method": "GET",
+    "avgLatency": 322,
+    "bestLatency": 59,
+    "p95": 1043,
+    "hitCount": 4,
+    "successRate": 100,
+    "isSlow": true
+  },
+  {
+    "endpoint": "/announcements",
+    "method": "OPTIONS",
+    "avgLatency": 1,
+    "bestLatency": 1,
+    "p95": 1,
+    "hitCount": 2,
+    "successRate": 100,
+    "isSlow": false
+  },
+  {
+    "endpoint": "/announcements",
+    "method": "GET",
+    "avgLatency": 244,
+    "bestLatency": 134,
+    "p95": 354,
+    "hitCount": 2,
+    "successRate": 100,
+    "isSlow": true
+  },
+  {
+    "endpoint": "/complaints/my",
+    "method": "OPTIONS",
+    "avgLatency": 2,
+    "bestLatency": 1,
+    "p95": 2,
+    "hitCount": 3,
+    "successRate": 100,
+    "isSlow": false
+  },
+  {
+    "endpoint": "/complaints/my",
+    "method": "GET",
+    "avgLatency": 68,
+    "bestLatency": 55,
+    "p95": 91,
+    "hitCount": 4,
+    "successRate": 100,
+    "isSlow": false
+  },
+  {
+    "endpoint": "/Profile/messList",
+    "method": "OPTIONS",
+    "avgLatency": 1,
+    "bestLatency": 1,
+    "p95": 1,
+    "hitCount": 2,
+    "successRate": 100,
+    "isSlow": false
+  },
+  {
+    "endpoint": "/Profile/messList",
+    "method": "GET",
+    "avgLatency": 373,
+    "bestLatency": 313,
+    "p95": 433,
+    "hitCount": 2,
+    "successRate": 100,
+    "isSlow": true
+  },
+  {
+    "endpoint": "/student/696cd6f4cd08167afbb3a638/mess",
+    "method": "OPTIONS",
+    "avgLatency": 1,
+    "bestLatency": 0,
+    "p95": 1,
+    "hitCount": 6,
+    "successRate": 100,
+    "isSlow": false
+  },
+  {
+    "endpoint": "/student/696cd6f4cd08167afbb3a638/mess",
+    "method": "GET",
+    "avgLatency": 150,
+    "bestLatency": 60,
+    "p95": 569,
+    "hitCount": 7,
+    "successRate": 100,
+    "isSlow": false
+  },
+  {
+    "endpoint": "/Profile/Hostelrequest",
+    "method": "OPTIONS",
+    "avgLatency": 1,
+    "bestLatency": 1,
+    "p95": 1,
+    "hitCount": 2,
+    "successRate": 100,
+    "isSlow": false
+  },
+  {
+    "endpoint": "/Profile/Hostelrequest",
+    "method": "GET",
+    "avgLatency": 198,
+    "bestLatency": 167,
+    "p95": 228,
+    "hitCount": 2,
+    "successRate": 100,
+    "isSlow": false
+  },
+  {
+    "endpoint": "/Profile/student/696cd6f4cd08167afbb3a638/hostel",
+    "method": "OPTIONS",
+    "avgLatency": 1,
+    "bestLatency": 1,
+    "p95": 1,
+    "hitCount": 5,
+    "successRate": 100,
+    "isSlow": false
+  },
+  {
+    "endpoint": "/Profile/student/696cd6f4cd08167afbb3a638/hostel",
+    "method": "GET",
+    "avgLatency": 70,
+    "bestLatency": 57,
+    "p95": 86,
+    "hitCount": 8,
+    "successRate": 100,
+    "isSlow": false
+  },
+  {
+    "endpoint": "/student/looking",
+    "method": "OPTIONS",
+    "avgLatency": 1,
+    "bestLatency": 1,
+    "p95": 1,
+    "hitCount": 2,
+    "successRate": 100,
+    "isSlow": false
+  },
+  {
+    "endpoint": "/student/looking",
+    "method": "GET",
+    "avgLatency": 80,
+    "bestLatency": 5,
+    "p95": 154,
+    "hitCount": 2,
+    "successRate": 100,
+    "isSlow": false
+  },
+  {
+    "endpoint": "/api/v1/mess/all-mess",
+    "method": "OPTIONS",
+    "avgLatency": 1,
+    "bestLatency": 1,
+    "p95": 1,
+    "hitCount": 1,
+    "successRate": 100,
+    "isSlow": false
+  },
+  {
+    "endpoint": "/api/v1/mess/all-mess",
+    "method": "GET",
+    "avgLatency": 9,
+    "bestLatency": 9,
+    "p95": 9,
+    "hitCount": 1,
+    "successRate": 100,
+    "isSlow": false
+  },
+  {
+    "endpoint": "/api/v1/polls",
+    "method": "OPTIONS",
+    "avgLatency": 1,
+    "bestLatency": 1,
+    "p95": 1,
+    "hitCount": 1,
+    "successRate": 100,
+    "isSlow": false
+  },
+  {
+    "endpoint": "/api/v1/polls",
+    "method": "GET",
+    "avgLatency": 254,
+    "bestLatency": 254,
+    "p95": 254,
+    "hitCount": 1,
+    "successRate": 100,
+    "isSlow": true
+  },
+  {
+    "endpoint": "/login",
+    "method": "OPTIONS",
+    "avgLatency": 1,
+    "bestLatency": 1,
+    "p95": 1,
+    "hitCount": 1,
+    "successRate": 100,
+    "isSlow": false
+  },
+  {
+    "endpoint": "/login",
+    "method": "POST",
+    "avgLatency": 310,
+    "bestLatency": 310,
+    "p95": 310,
+    "hitCount": 1,
+    "successRate": 100,
+    "isSlow": true
+  },
+  {
+    "endpoint": "/mess/bookings/my",
+    "method": "OPTIONS",
+    "avgLatency": 1,
+    "bestLatency": 0,
+    "p95": 1,
+    "hitCount": 3,
+    "successRate": 100,
+    "isSlow": false
+  },
+  {
+    "endpoint": "/Profile/messages/unread-count",
+    "method": "OPTIONS",
+    "avgLatency": 1,
+    "bestLatency": 0,
+    "p95": 1,
+    "hitCount": 3,
+    "successRate": 100,
+    "isSlow": false
+  },
+  {
+    "endpoint": "/mess/bookings/my",
+    "method": "GET",
+    "avgLatency": 100,
+    "bestLatency": 79,
+    "p95": 121,
+    "hitCount": 2,
+    "successRate": 100,
+    "isSlow": false
+  },
+  {
+    "endpoint": "/Profile/messages/unread-count",
+    "method": "GET",
+    "avgLatency": 158,
+    "bestLatency": 138,
+    "p95": 177,
+    "hitCount": 2,
+    "successRate": 100,
+    "isSlow": false
+  },
+  {
+    "endpoint": "/mess/menu/week",
+    "method": "OPTIONS",
+    "avgLatency": 1,
+    "bestLatency": 1,
+    "p95": 1,
+    "hitCount": 2,
+    "successRate": 100,
+    "isSlow": false
+  },
+  {
+    "endpoint": "/socket.io/",
+    "method": "GET",
+    "avgLatency": 41,
+    "bestLatency": 1,
+    "p95": 107,
+    "hitCount": 6,
+    "successRate": 100,
+    "isSlow": false
+  },
+  {
+    "endpoint": "/socket.io/",
+    "method": "POST",
+    "avgLatency": 8,
+    "bestLatency": 2,
+    "p95": 13,
+    "hitCount": 2,
+    "successRate": 100,
+    "isSlow": false
+  }
+]

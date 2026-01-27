@@ -3,14 +3,14 @@ const path = require('path');
 const OpenAI = require('openai');
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-const RAG_DOCS_PATH = path.join(__dirname, '../../../rag/docs');
+const RAG_DOCS_PATH = path.join(__dirname, '../rag/docs');
 
 // Ensure RAG directory exists
 if (!fs.existsSync(RAG_DOCS_PATH)) {
     fs.mkdirSync(RAG_DOCS_PATH, { recursive: true });
 }
 
-const ragService = require('../../../rag/services/rag.service');
+const ragService = require('../rag/services/rag.service');
 
 const aiService = {
 
