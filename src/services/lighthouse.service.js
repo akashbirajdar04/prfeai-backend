@@ -4,21 +4,27 @@ const runLighthouse = async (url) => {
     // Dynamic import for ESM-only lighthouse package
     const { default: lighthouse } = await import('lighthouse');
 
-    const chrome = await chromeLauncher.launch({
-        chromeFlags: ['--headless', '--no-sandbox', '--disable-setuid-sandbox', '--disable-gpu'],
-        chromePath: process.env.CHROME_PATH
-    });
-    const options = {
-        logLevel: 'info',
-        output: 'json',
-        onlyCategories: ['performance', 'seo', 'accessibility', 'best-practices'],
-        port: chrome.port
-    };
+    if (!process.env.CHROME_PATH) {
+        throw new Error("CHROME_PATH environment variable is not set. Cannot launch Chrome.");
+    }
 
+    let chrome;
     try {
-        console.log(`[Lighthouse] launching Chrome for ${url}`);
+        console.log(`[Lighthouse] Attempting to launch Chrome from: ${process.env.CHROME_PATH}`);
+        chrome = await chromeLauncher.launch({
+            chromeFlags: ['--headless', '--no-sandbox', '--disable-setuid-sandbox', '--disable-gpu', '--disable-dev-shm-usage'],
+            chromePath: process.env.CHROME_PATH
+        });
+
+        const options = {
+            logLevel: 'info',
+            output: 'json',
+            onlyCategories: ['performance', 'seo', 'accessibility', 'best-practices'],
+            port: chrome.port
+        };
+
+        console.log(`[Lighthouse] launching Chrome for ${url} on port ${chrome.port}`);
         const runnerResult = await lighthouse(url, options);
-        await chrome.kill();
 
         // Extract key metrics
         const report = JSON.parse(runnerResult.report);
@@ -41,10 +47,19 @@ const runLighthouse = async (url) => {
         console.log(`[Lighthouse] Extracted Metrics:`, metrics);
 
         return { rawReport: report, metrics };
+
     } catch (error) {
-        await chrome.kill();
         console.error("Lighthouse run failed:", error);
         throw error;
+    } finally {
+        if (chrome) {
+            try {
+                await chrome.kill();
+                console.log("[Lighthouse] Chrome process killed.");
+            } catch (err) {
+                console.error("[Lighthouse] Failed to kill Chrome process:", err);
+            }
+        }
     }
 };
 
