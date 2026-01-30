@@ -4,7 +4,10 @@ const runLighthouse = async (url) => {
     // Dynamic import for ESM-only lighthouse package
     const { default: lighthouse } = await import('lighthouse');
 
-    const chrome = await chromeLauncher.launch({ chromeFlags: ['--headless'] });
+    const chrome = await chromeLauncher.launch({
+        chromeFlags: ['--headless', '--no-sandbox', '--disable-setuid-sandbox', '--disable-gpu'],
+        chromePath: process.env.CHROME_PATH
+    });
     const options = {
         logLevel: 'info',
         output: 'json',
