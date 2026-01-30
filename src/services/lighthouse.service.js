@@ -3,17 +3,32 @@ const chromeLauncher = require('chrome-launcher');
 const runLighthouse = async (url) => {
     // Dynamic import for ESM-only lighthouse package
     const { default: lighthouse } = await import('lighthouse');
+    const puppeteer = require('puppeteer');
 
-    if (!process.env.CHROME_PATH) {
-        throw new Error("CHROME_PATH environment variable is not set. Cannot launch Chrome.");
+    // Robustly determine Chrome Path:
+    // 1. Try environment variable (user manual override)
+    // 2. Try Puppeteer's bundled Chromium (reliable on Render/Heroku)
+    let chromePath = process.env.CHROME_PATH;
+
+    if (!chromePath) {
+        try {
+            chromePath = puppeteer.executablePath();
+            console.log(`[Lighthouse] Using Puppeteer Chromim: ${chromePath}`);
+        } catch (e) {
+            console.warn("[Lighthouse] Failed to get Puppeteer executable path:", e);
+        }
+    }
+
+    if (!chromePath) {
+        throw new Error("Could not find Chrome/Chromium! Set CHROME_PATH or install Puppeteer.");
     }
 
     let chrome;
     try {
-        console.log(`[Lighthouse] Attempting to launch Chrome from: ${process.env.CHROME_PATH}`);
+        console.log(`[Lighthouse] Attempting to launch Chrome from: ${chromePath}`);
         chrome = await chromeLauncher.launch({
             chromeFlags: ['--headless', '--no-sandbox', '--disable-setuid-sandbox', '--disable-gpu', '--disable-dev-shm-usage'],
-            chromePath: process.env.CHROME_PATH
+            chromePath: chromePath
         });
 
         const options = {
