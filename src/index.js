@@ -9,15 +9,17 @@ connectDB();
 
 const app = express();
 
-app.use(cors({
+const corsOptions = {
     origin: ["https://prfeanalyzee-frontend.vercel.app", "http://localhost:5173", "http://localhost:3000"],
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization", "x-session-id"],
     credentials: true,
     optionsSuccessStatus: 200
-}));
+};
 
-app.options('/(.*)', cors()); // Enable pre-flight for all routes (Express 5 syntax)
+app.use(cors(corsOptions));
+
+app.options(/.*/, cors(corsOptions)); // Enable pre-flight for all routes using RegExp for Express 5
 
 // Parse Protobuf data before JSON parser
 app.use(protobufParser);
