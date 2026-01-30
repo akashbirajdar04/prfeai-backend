@@ -4,23 +4,32 @@ const runLighthouse = async (url) => {
     // Dynamic import for ESM-only lighthouse package
     const { default: lighthouse } = await import('lighthouse');
     const puppeteer = require('puppeteer');
+    const fs = require('fs');
 
-    // Robustly determine Chrome Path:
-    // 1. Try environment variable (user manual override)
-    // 2. Try Puppeteer's bundled Chromium (reliable on Render/Heroku)
-    let chromePath = process.env.CHROME_PATH;
+    // Robustly determine Chrome Path from Env Var (User Override)
+    // Supports: CHROME_PATH or PUPPETEER_EXECUTABLE_PATH
+    let chromePath = process.env.PUPPETEER_EXECUTABLE_PATH || process.env.CHROME_PATH;
 
+    // 1. Validate Env Var if set
+    if (chromePath) {
+        if (!fs.existsSync(chromePath)) {
+            console.warn(`[Lighthouse] Configured Chrome path '${chromePath}' does not exist! Will attempt fallback.`);
+            chromePath = null;
+        }
+    }
+
+    // 2. Try Puppeteer's bundled Chromium if Env Var is missing or invalid
     if (!chromePath) {
         try {
             chromePath = puppeteer.executablePath();
-            console.log(`[Lighthouse] Using Puppeteer Chromim: ${chromePath}`);
+            console.log(`[Lighthouse] Using Puppeteer Chromium: ${chromePath}`);
         } catch (e) {
             console.warn("[Lighthouse] Failed to get Puppeteer executable path:", e);
         }
     }
 
-    if (!chromePath) {
-        throw new Error("Could not find Chrome/Chromium! Set CHROME_PATH or install Puppeteer.");
+    if (!chromePath || !fs.existsSync(chromePath)) {
+        throw new Error(`Could not find Chrome/Chromium! Ensure 'PUPPETEER_EXECUTABLE_PATH' is correct or Buildpack is installed.`);
     }
 
     let chrome;
