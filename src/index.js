@@ -17,7 +17,7 @@ app.use(cors({
     optionsSuccessStatus: 200
 }));
 
-app.options('*', cors()); // Enable pre-flight for all routes
+app.options('/(.*)', cors()); // Enable pre-flight for all routes (Express 5 syntax)
 
 // Parse Protobuf data before JSON parser
 app.use(protobufParser);
