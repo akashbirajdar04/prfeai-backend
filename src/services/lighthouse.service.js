@@ -1,4 +1,4 @@
-const chromeLauncher = require('chrome-launcher');
+
 
 const runLighthouse = async (url) => {
     // Dynamic import for ESM-only lighthouse package
