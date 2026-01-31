@@ -6,55 +6,35 @@ const runLighthouse = async (url) => {
     const puppeteer = require('puppeteer');
     const fs = require('fs');
 
-    // Robustly determine Chrome Path from Env Var (User Override)
-    // Supports: CHROME_PATH or PUPPETEER_EXECUTABLE_PATH
-    let chromePath = process.env.PUPPETEER_EXECUTABLE_PATH || process.env.CHROME_PATH;
+    console.log(`[Lighthouse] Launching Puppeteer with executable: ${process.env.PUPPETEER_EXECUTABLE_PATH}`);
 
-    // 1. Validate Env Var if set
-    if (chromePath) {
-        if (!fs.existsSync(chromePath)) {
-            console.warn(`[Lighthouse] Configured Chrome path '${chromePath}' does not exist! Will attempt fallback.`);
-            chromePath = null;
-        }
-    }
+    const browser = await puppeteer.launch({
+        executablePath: process.env.PUPPETEER_EXECUTABLE_PATH,
+        headless: "new",
+        args: [
+            "--no-sandbox",
+            "--disable-setuid-sandbox",
+            "--disable-dev-shm-usage",
+            "--remote-debugging-port=9222"
+        ]
+    });
 
-    // 2. Try Puppeteer's bundled Chromium if Env Var is missing or invalid
-    if (!chromePath) {
-        try {
-            chromePath = puppeteer.executablePath();
-            console.log(`[Lighthouse] Using Puppeteer Chromium: ${chromePath}`);
-        } catch (e) {
-            console.warn("[Lighthouse] Failed to get Puppeteer executable path:", e);
-        }
-    }
-
-    if (!chromePath || !fs.existsSync(chromePath)) {
-        throw new Error(`Could not find Chrome/Chromium! Ensure 'PUPPETEER_EXECUTABLE_PATH' is correct or Buildpack is installed.`);
-    }
-
-    let chrome;
     try {
-        console.log(`[Lighthouse] Attempting to launch Chrome from: ${chromePath}`);
-        chrome = await chromeLauncher.launch({
-            chromeFlags: ['--headless', '--no-sandbox', '--disable-setuid-sandbox', '--disable-gpu', '--disable-dev-shm-usage'],
-            chromePath: chromePath
-        });
-
+        // Connect Lighthouse to the existing browser port
+        const port = 9222;
         const options = {
             logLevel: 'info',
             output: 'json',
             onlyCategories: ['performance', 'seo', 'accessibility', 'best-practices'],
-            port: chrome.port
+            port: port
         };
 
-        console.log(`[Lighthouse] launching Chrome for ${url} on port ${chrome.port}`);
+        console.log(`[Lighthouse] Running analysis for ${url} on port ${port}`);
         const runnerResult = await lighthouse(url, options);
 
         // Extract key metrics
         const report = JSON.parse(runnerResult.report);
         const audits = report.audits;
-
-        console.log(`[Lighthouse] Raw Audits Keys:`, Object.keys(audits).filter(k => k.includes('paint') || k.includes('shift') || k.includes('response')));
 
         const metrics = {
             performanceScore: (report.categories?.performance?.score || 0) * 100,
@@ -76,13 +56,9 @@ const runLighthouse = async (url) => {
         console.error("Lighthouse run failed:", error);
         throw error;
     } finally {
-        if (chrome) {
-            try {
-                await chrome.kill();
-                console.log("[Lighthouse] Chrome process killed.");
-            } catch (err) {
-                console.error("[Lighthouse] Failed to kill Chrome process:", err);
-            }
+        if (browser) {
+            await browser.close();
+            console.log("[Lighthouse] Browser closed.");
         }
     }
 };
